@@ -26,7 +26,7 @@ struct product *pro;
 }producer_t;
 
 producer_t *readFile1(FILE *);
-product_t *readFile2(FILE *);
+product_t *readFile2(FILE *,producer_t *);
 void output(producer_t *,product_t *);
 void freeMemory(producer_t *,product_t *);
 
@@ -56,7 +56,7 @@ FILE *fp1,*fp2;
 			return 0;
 		}
 	head1=readFile1(fp1);
-	head2=readFile2(fp2);
+	head2=readFile2(fp2,head1);
 	output(head1,head2);
 
 //free
@@ -95,7 +95,7 @@ producer_t *readFile1(FILE *fp){
 
 	return head;
 }
-product_t *readFile2(FILE *fp){
+product_t *readFile2(FILE *fp,producer_t *head1){
 	char name[L];
 	int price;
 	char buffId[L];
@@ -112,6 +112,14 @@ product_t *readFile2(FILE *fp){
 		tmp->id=strdup(buffId);
 		tmp->productname=strdup(name);
 		tmp->price=price;
+		if(strcmp(head1->id,tmp->id)==0){
+			if(head1->pro == NULL){
+			head1->pro->next=head;
+			head=tmp;
+			}else{
+				head=head1->pro->next;
+				tmp=head;
+			}
 		if(head==NULL){
 					tmp->next=NULL;
 					head=tmp;
