@@ -139,16 +139,18 @@ return head1;
 
 void output(producer_t *head){
 	producer_t *tmp=head;
+	int found=0;
 
-	char found[L];
+	char wanted[L];
 	do{
 
 	printf("enter the name of the product: \n");
-	scanf("%s",found);
+	scanf("%s",wanted);
+	//strlwr(wanted);
 	while (tmp->next != NULL){
-		if(strcpy(tmp->name,found)==0){
-
-			while(tmp->pro->next != NULL){
+		if(strcmp(tmp->name,wanted)==0){
+			found=1;
+			while((tmp->pro->next != NULL)&& (found==1)){
 			printf(" %s ",tmp->pro->productname);
 			printf(" %d ",tmp->pro->price);
 
