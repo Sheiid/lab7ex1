@@ -1,9 +1,3 @@
-/*
- * main.c
- *
- *  Created on: Nov 20, 2017
- *      Author: Sheida
- */
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -14,7 +8,7 @@ typedef struct product{
 char *productname;
 char *id;
 int price;
-struct products *next;
+struct product *next;
 }product_t;
 
 
@@ -26,9 +20,10 @@ struct product *pro;
 }producer_t;
 
 producer_t *readFile1(FILE *);
-product_t *readFile2(FILE *,producer_t *);
-void output(producer_t *,product_t *);
-void freeMemory(producer_t *,product_t *);
+producer_t *readFile2(FILE *,producer_t *);
+producer_t *findproducerbyId (producer_t *,char *);
+void output(producer_t *);
+void freeMemory(producer_t *);
 
 
 int main(int argc,char *argv[]){
@@ -45,9 +40,9 @@ FILE *fp1,*fp2;
 		return 0;
 	}
 
-	fp1=fopen("producer.txt","r");
+	fp1=fopen("produce.txt","r");
 	if(fp1 == NULL){
-		printf("File Producer Can't open\n");
+		printf("File Produce Can't open\n");
 		return 0;
 	}
 	fp2=fopen("product.txt","r");
@@ -56,13 +51,13 @@ FILE *fp1,*fp2;
 			return 0;
 		}
 	head1=readFile1(fp1);
-	head2=readFile2(fp2,head1);
-	output(head1,head2);
+	head1=readFile2(fp2,head1);
+	output(head1);
 
 //free
 	fclose(fp1);
 	fclose(fp2);
-	freeMemory(head1,head2);
+	freeMemory(head1);
 
 
 
@@ -72,7 +67,7 @@ return 0;
 
 producer_t *readFile1(FILE *fp){
 
-	producer_t *tmp,*head=NULL;
+	producer_t *tmp,*head=NULL,*tmp2=NULL;
 	char name[L];
 	char id[L];
 	while (fscanf(fp,"%s %s",name,id)!=EOF){
@@ -84,108 +79,120 @@ producer_t *readFile1(FILE *fp){
 		}
 		tmp->name=strdup(name);
 		tmp->id=strdup(id);
+		tmp->pro = NULL;
+		tmp->next=NULL;
 		if(head==NULL){
-			tmp->next=NULL;
 			head=tmp;
 		}else{
-		tmp->next=head;
-		head=tmp;
+		tmp2=head;
+		// tmp2 mizarim ta tahe list
+		while (tmp2->next != NULL){
+			tmp2=tmp2->next;
+
+		}
+		//tail insertion
+		tmp2->next=tmp;
+
 	}
 	}
 
 	return head;
 }
-product_t *readFile2(FILE *fp,producer_t *head1){
+producer_t *readFile2(FILE *fp,producer_t *head1){
 	char name[L];
 	int price;
 	char buffId[L];
 
-	product_t *tmp,*head=NULL;
-	//producer_t *produce;
+	product_t *tmp;
+
+
+	producer_t *producer=NULL;
 
 	while (fscanf(fp,"%s %s %d",buffId,name,&price)!=EOF){
-		tmp=(product_t *)malloc(sizeof(product_t));
-		if(tmp==NULL){
-			printf("Allocation Error in products\n");
-			return 0;
+
+		producer=findproducerbyId (head1,buffId);
+		if(producer!=NULL){
+			//create node product first allocate them
+
+			tmp=(product_t *)malloc(sizeof(product_t));
+				if(tmp==NULL){
+					printf("Allocation Error in products\n");
+					return 0;
+				}
+				tmp->id=strdup(buffId);
+				tmp->productname=strdup(name);
+				tmp->price=price;
+				tmp->next=NULL;
+				if(producer->pro == NULL){
+					producer->pro=tmp;
+				}else{
+					//head insertion
+					tmp->next=producer->pro;
+					producer->pro=tmp;
+				}
 		}
-		tmp->id=strdup(buffId);
-		tmp->productname=strdup(name);
-		tmp->price=price;
-		if(strcmp(head1->id,tmp->id)==0){
-			if(head1->pro == NULL){
-			head1->pro->next=head;
-			head=tmp;
-			}else{
-				head=head1->pro->next;
-				tmp=head;
-			}
-		if(head==NULL){
-					tmp->next=NULL;
-					head=tmp;
-		}else{
-		tmp->next=head;
-		head=tmp;
-		}
+
 	}
 
-return head;
+return head1;
 }
 
-void output(producer_t *head1,product_t *head2){
-	producer_t *tmp;
-	tmp=head1;
+void output(producer_t *head){
+	producer_t *tmp=head;
+
 	char found[L];
+	do{
 
-	while (tmp!= NULL){
-		if(strcmp(tmp->id,head2->id)==0)
-		{
-			if(tmp->pro == NULL){
-				head2->next=NULL;
-				tmp->pro=head2;
-				return;
-			}else{
-				head2->next=tmp->pro;
-				tmp->pro=head2;
-				return;
-			}
-
-		}
-	tmp=tmp->next;
-	}
-	printf("insert the name: \n");
+	printf("enter the name of the product: \n");
 	scanf("%s",found);
-	while (tmp != NULL){
-		if(strcmp(tmp->name,found)==0){
-			while (tmp->pro != NULL){
-				printf("%s %d",tmp->pro->productname,tmp->pro->price);
-				tmp->pro=tmp->pro->next;
+	while (tmp->next != NULL){
+		if(strcpy(tmp->name,found)==0){
+
+			while(tmp->pro->next != NULL){
+			printf(" %s ",tmp->pro->productname);
+			printf(" %d ",tmp->pro->price);
+
 			}
+
 		}
 		tmp=tmp->next;
 	}
+	}while(strcmp(found,"stop")!=0);
 
 return ;
 
 }
-void freeMemory(producer_t *head1,product_t *head2){
-	producer_t *produce;
-	product_t *product;
+void freeMemory(producer_t *head1){
+	producer_t *produce=head1;
 
-	while (head1 != NULL){
-		produce=head1;
-		head1=produce->next;
+	while (produce->next != NULL){
+
 		free(produce->id);
 		free(produce->name);
-		free(produce);
-	}
-	while (head2 != NULL){
-			product=head2;
-			head2=product->next;
-			free(product->productname);
-			free(product->id);
-			free(product);
-		}
-}
+		free(produce->pro);
 
+
+	}
+	free(produce);
+
+}
+producer_t *findproducerbyId (producer_t *head,char *id){
+	producer_t *tmp=NULL;
+	producer_t *tmp2=head;
+
+	//int found=0;
+
+	while(tmp2 !=NULL && tmp==NULL){ //(found==1) but Don't use!
+		if(strcmp(id,tmp2->id)==0){
+			tmp=tmp2;
+
+
+		}else{
+			tmp2=tmp2->next;
+		}
+
+
+	}
+return tmp;
+}
 
