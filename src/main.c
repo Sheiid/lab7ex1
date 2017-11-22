@@ -29,13 +29,14 @@ void freeMemory(producer_t *);
 int main(int argc,char *argv[]){
 
 producer_t *head1;
-product_t *head2;
+//product_t *head2;
 
 FILE *fp1,*fp2;
 
 
 
-	if (argc != 3){
+
+if (argc != 3){
 		printf("ERROR !\n number of parameters!\n");
 		return 0;
 	}
@@ -139,27 +140,35 @@ return head1;
 
 void output(producer_t *head){
 	producer_t *tmp=head;
-	int found=0;
+	product_t *buffproduct=NULL;
+
+	//int found=0;
 
 	char wanted[L];
 	do{
-
+		while (tmp != NULL){
 	printf("enter the name of the product: \n");
 	scanf("%s",wanted);
 	//strlwr(wanted);
-	while (tmp->next != NULL){
-		if(strcmp(tmp->name,wanted)==0){
-			found=1;
-			while((tmp->pro->next != NULL)&& (found==1)){
-			printf(" %s ",tmp->pro->productname);
-			printf(" %d ",tmp->pro->price);
 
+		if(strcmp(tmp->name,wanted)==0){
+			//found=1;
+			while((tmp->pro != NULL)){
+
+			buffproduct=tmp->pro;
+			printf("%s ",buffproduct->productname);
+			printf("%d ",buffproduct->price);
+			printf("\n");
+
+			buffproduct=NULL;
+			tmp->pro=tmp->pro->next;
 			}
 
 		}
 		tmp=tmp->next;
 	}
-	}while(strcmp(found,"stop")!=0);
+	printf("\n");
+	}while(strcmp(wanted,"stop")!=0);
 
 return ;
 
@@ -167,11 +176,12 @@ return ;
 void freeMemory(producer_t *head1){
 	producer_t *produce=head1;
 
-	while (produce->next != NULL){
+	while (produce != NULL){
 
 		free(produce->id);
 		free(produce->name);
 		free(produce->pro);
+		produce=produce->next;
 
 
 	}
