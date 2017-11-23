@@ -139,52 +139,67 @@ return head1;
 }
 
 void output(producer_t *head){
-	producer_t *tmp=head;
+	producer_t *tmp=NULL;
 	product_t *buffproduct=NULL;
 
-	//int found=0;
+	int found=0;
 
 	char wanted[L];
-	do{
-		while (tmp != NULL){
-	printf("enter the name of the product: \n");
-	scanf("%s",wanted);
-	//strlwr(wanted);
+
+		do{
+			printf("enter the name of the product: \n");
+			scanf("%s",wanted);
+			found=0;
+			tmp=head;
+
+		while (tmp != NULL  && found==0){
+
 
 		if(strcmp(tmp->name,wanted)==0){
-			//found=1;
-			while((tmp->pro != NULL)){
-
+			found=1;
 			buffproduct=tmp->pro;
+
+			while(buffproduct != NULL){
+
 			printf("%s ",buffproduct->productname);
 			printf("%d ",buffproduct->price);
 			printf("\n");
 
-			buffproduct=NULL;
-			tmp->pro=tmp->pro->next;
+			buffproduct=buffproduct->next;
 			}
 
 		}
-		tmp=tmp->next;
-	}
+			tmp=tmp->next;
+
+
+
+			}
+
 	printf("\n");
-	}while(strcmp(wanted,"stop")!=0);
+	}while(strcmp(wanted,"STOP")!=0);
 
 return ;
 
 }
 void freeMemory(producer_t *head1){
-	producer_t *produce=head1;
+	producer_t *produce=head1,*tmp=NULL;
+	product_t *tmpproduct=NULL;
 
 	while (produce != NULL){
+		tmp=produce;
 
-		free(produce->id);
-		free(produce->name);
-		free(produce->pro);
-		produce=produce->next;
-
-
-	}
+		free(tmp->id);
+		free(tmp->name);
+		while (tmp->pro != NULL){
+			tmpproduct=tmp->pro;
+			free(tmpproduct->productname);
+			free(tmpproduct->price);
+			free(tmpproduct);
+			tmpproduct=tmpproduct->next;
+		}
+		free(tmp);
+		tmp=tmp->next;
+}
 	free(produce);
 
 }
